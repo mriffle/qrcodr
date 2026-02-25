@@ -37,7 +37,7 @@ Get binaries from the latest release:
   - Windows: `qrcodr-vX.Y.Z-windows.exe`
   - macOS: `qrcodr-vX.Y.Z-macos`
   - Linux: `qrcodr-vX.Y.Z-linux`
-- Each binary also has a matching checksum file: `.sha256`
+- Note: Each binary also has a matching checksum file: `.sha256`. This can be used to verify the file you downloaded is precisely the same as the file on GitHub.
 
 ### Download examples (latest release)
 
