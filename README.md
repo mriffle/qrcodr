@@ -157,7 +157,7 @@ With the virtual environment activated:
 
 ```bash
 pytest                       # run all tests
-pytest -m smoke              # run only smoke tests (end-to-end CLI + GUI, QR decode verification)
+pytest -m smoke              # run only smoke tests (end-to-end CLI + GUI + Docker, QR decode verification)
 pytest -m "not smoke"        # run everything except smoke tests
 ```
 

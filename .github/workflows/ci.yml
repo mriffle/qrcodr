@@ -47,7 +47,7 @@ jobs:
           "${{ steps.venv.outputs.python_path }}" -m pytest -m "not smoke"
 
   smoke:
-    name: Smoke tests (CLI + GUI)
+    name: Smoke tests (CLI + GUI + Docker)
     runs-on: ubuntu-latest
 
     steps:
@@ -58,6 +58,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - name: Check Docker runtime
+        run: docker --version
 
       - name: Install GUI runtime dependencies
         run: |
