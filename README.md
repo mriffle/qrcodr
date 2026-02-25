@@ -6,8 +6,8 @@
 - SVG
 - PDF
 
-The app is built with Python + Tkinter. It can run from source or as precompiled binaries for Windows, macOS, and Linux.
-It also supports full headless generation from the command line.
+The app is built with Python + Tkinter. The primary way to run it is via precompiled release binaries for Windows, macOS, and Linux.
+It can also run from source and supports full headless generation from the command line.
 
 ## Features
 
@@ -27,6 +27,40 @@ It also supports full headless generation from the command line.
 - `tests/test_cli.py`: pytest tests for command-line generation behavior
 - `.github/workflows/ci.yml`: test workflow on push/release
 - `.github/workflows/release-binaries.yml`: cross-platform binary build + release upload
+
+## Run from release binaries (recommended)
+
+Get binaries from the latest release:
+
+- Latest release page: `https://github.com/mriffle/qrcodr/releases/latest`
+- Asset pattern:
+  - Windows: `qrcodr-vX.Y.Z-windows.exe`
+  - macOS: `qrcodr-vX.Y.Z-macos`
+  - Linux: `qrcodr-vX.Y.Z-linux`
+- Each binary also has a matching checksum file: `.sha256`
+
+### Download examples (latest release)
+
+Linux/macOS (replace `vX.Y.Z` with the version shown in the latest release):
+
+```bash
+curl -LO https://github.com/mriffle/qrcodr/releases/download/vX.Y.Z/qrcodr-vX.Y.Z-linux
+curl -LO https://github.com/mriffle/qrcodr/releases/download/vX.Y.Z/qrcodr-vX.Y.Z-linux.sha256
+sha256sum -c qrcodr-vX.Y.Z-linux.sha256
+chmod +x qrcodr-vX.Y.Z-linux
+./qrcodr-vX.Y.Z-linux
+```
+
+Windows PowerShell:
+
+```powershell
+Invoke-WebRequest https://github.com/mriffle/qrcodr/releases/download/vX.Y.Z/qrcodr-vX.Y.Z-windows.exe -OutFile qrcodr-vX.Y.Z-windows.exe
+Invoke-WebRequest https://github.com/mriffle/qrcodr/releases/download/vX.Y.Z/qrcodr-vX.Y.Z-windows.exe.sha256 -OutFile qrcodr-vX.Y.Z-windows.exe.sha256
+Get-FileHash .\qrcodr-vX.Y.Z-windows.exe -Algorithm SHA256
+.\qrcodr-vX.Y.Z-windows.exe
+```
+
+Double-click is supported on Windows and common desktop environments.
 
 ## Run from source
 
@@ -118,18 +152,6 @@ Run all non-smoke tests:
 ```bash
 pytest -m "not smoke"
 ```
-
-## Use precompiled binaries
-
-1. Go to the project Releases page on GitHub.
-2. Download your platform binary and checksum file:
-   - Windows: `qrcodr-vX.Y.Z-windows.exe` and `qrcodr-vX.Y.Z-windows.exe.sha256`
-   - macOS: `qrcodr-vX.Y.Z-macos` and `qrcodr-vX.Y.Z-macos.sha256`
-   - Linux: `qrcodr-vX.Y.Z-linux` and `qrcodr-vX.Y.Z-linux.sha256`
-3. (Recommended) verify checksum:
-   - Linux/macOS: `sha256sum -c qrcodr-vX.Y.Z-linux.sha256` (or the matching macOS file)
-   - Windows PowerShell: `Get-FileHash .\qrcodr-vX.Y.Z-windows.exe -Algorithm SHA256`
-4. Run the binary directly (double-click on Windows/macOS desktop environments, or execute in terminal on Linux/macOS if needed).
 
 The desktop app opens directly, so users do not need to use the command line.
 The app window title shows the release version, and `--version` reports it in command-line mode.
