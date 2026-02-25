@@ -1,79 +1,83 @@
 # qrcodr
 
-`qrcodr` is a desktop QR code generator that takes a URL (or any text payload) and exports it as:
+**Generate QR codes and export them as PNG, SVG, or PDF — in seconds.**
 
-- PNG
-- SVG
-- PDF
+qrcodr is a simple desktop app for creating QR codes. Type in a URL (or any text), preview the QR code, and export it in the format you need. No accounts, no internet connection required, no command line necessary — just download, open, and go.
 
-The app is built with Python + Tkinter. The primary way to run it is via precompiled release binaries for Windows, macOS, and Linux.
-It can also run from source and supports full headless generation from the command line.
+## Getting started
 
-## Features
+The easiest way to use qrcodr is to download the precompiled binary for your operating system from the [latest release page](https://github.com/mriffle/qrcodr/releases/latest).
 
-- Simple desktop UI with QR preview
-- Export to 3 formats in one click
-- Full command-line generation workflow (`generate` subcommand)
-- Runs as a standalone binary (double-click to open, no terminal required)
-- Test suite with `pytest`
-- GitHub Actions for CI tests and release binary builds
+| Platform | File to download |
+|----------|-----------------|
+| Windows  | `qrcodr-vX.Y.Z-windows.exe` |
+| macOS    | `qrcodr-vX.Y.Z-macos` |
+| Linux    | `qrcodr-vX.Y.Z-linux` |
 
-## Project layout
+Replace `vX.Y.Z` with the version number shown on the release page.
 
-- `src/qrcodr/app.py`: GUI application
-- `src/qrcodr/cli.py`: CLI entrypoint and subcommands
-- `src/qrcodr/core.py`: QR generation and export logic
-- `tests/test_core.py`: pytest tests for core behavior
-- `tests/test_cli.py`: pytest tests for command-line generation behavior
-- `.github/workflows/ci.yml`: test workflow on push/release
-- `.github/workflows/release-binaries.yml`: cross-platform binary build + release upload
+On Windows, just double-click the `.exe` to open. On macOS and Linux, you may need to mark the file as executable first (see below).
 
-## Run from release binaries (recommended)
+### Verifying your download
 
-Get binaries from the latest release:
+Each binary on the release page has a matching `.sha256` checksum file. You can use this to verify that the file you downloaded is identical to the one published on GitHub — this guards against corrupted downloads or tampered files.
 
-- Latest release page: `https://github.com/mriffle/qrcodr/releases/latest`
-- Asset pattern:
-  - Windows: `qrcodr-vX.Y.Z-windows.exe`
-  - macOS: `qrcodr-vX.Y.Z-macos`
-  - Linux: `qrcodr-vX.Y.Z-linux`
-- Note: Each binary also has a matching checksum file: `.sha256`. This can be used to verify the file you downloaded is precisely the same as the file on GitHub.
-
-### Download examples (latest release)
-
-Linux/macOS (replace `vX.Y.Z` with the version shown in the latest release):
+**Linux / macOS:**
 
 ```bash
+# Download the binary and its checksum file
 curl -LO https://github.com/mriffle/qrcodr/releases/download/vX.Y.Z/qrcodr-vX.Y.Z-linux
 curl -LO https://github.com/mriffle/qrcodr/releases/download/vX.Y.Z/qrcodr-vX.Y.Z-linux.sha256
+
+# Verify the checksum — you should see "OK" if the file matches
 sha256sum -c qrcodr-vX.Y.Z-linux.sha256
+
+# Make it executable and run
 chmod +x qrcodr-vX.Y.Z-linux
 ./qrcodr-vX.Y.Z-linux
 ```
 
-Windows PowerShell:
+**Windows (PowerShell):**
 
 ```powershell
+# Download the binary and its checksum file
 Invoke-WebRequest https://github.com/mriffle/qrcodr/releases/download/vX.Y.Z/qrcodr-vX.Y.Z-windows.exe -OutFile qrcodr-vX.Y.Z-windows.exe
 Invoke-WebRequest https://github.com/mriffle/qrcodr/releases/download/vX.Y.Z/qrcodr-vX.Y.Z-windows.exe.sha256 -OutFile qrcodr-vX.Y.Z-windows.exe.sha256
+
+# Verify the checksum — compare the output hash to the contents of the .sha256 file
 Get-FileHash .\qrcodr-vX.Y.Z-windows.exe -Algorithm SHA256
+
+# If the hashes match, you're good — double-click the .exe or run it from PowerShell
 .\qrcodr-vX.Y.Z-windows.exe
 ```
 
-Double-click is supported on Windows and common desktop environments.
+On Windows, compare the hash printed by `Get-FileHash` to the value inside the `.sha256` file (open it in a text editor). If they match, your download is verified.
 
-## Run from source
+---
 
-### 1. Create and activate a local virtual environment
+## Features
 
-Linux/macOS:
+- **Desktop GUI** — a clean window with a live QR code preview and one-click export to PNG, SVG, and PDF
+- **Command-line mode** — generate QR codes without opening the GUI (great for scripting and automation)
+- **Cross-platform** — precompiled binaries for Windows, macOS, and Linux
+- **No install required** — download a single file and run it
+
+---
+
+## Running from source
+
+If you'd prefer to run from source (for development or because a binary isn't available for your platform), follow these steps.
+
+### 1. Create and activate a virtual environment
+
+**Linux / macOS:**
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 ```
 
-Windows PowerShell:
+**Windows PowerShell:**
 
 ```powershell
 python -m venv .venv
@@ -87,76 +91,60 @@ python -m pip install --upgrade pip
 python -m pip install -e .[dev]
 ```
 
-### 3. Launch the GUI app
+### 3. Launch the app
 
-Any of these are supported:
+Any of these will open the GUI:
 
 ```bash
 python -m qrcodr
-```
-
-```bash
 qrcodr
-```
-
-```bash
 python run_qrcodr.py
 ```
 
-### 4. Run from command line (no GUI)
+### 4. Command-line generation (no GUI)
 
-Generate all output formats directly:
+You can generate QR codes directly from the terminal:
 
 ```bash
 python -m qrcodr generate --payload "https://example.com" --output-dir ./output --stem my_qr
 ```
 
-Equivalent via script wrapper:
+This creates `my_qr.png`, `my_qr.svg`, and `my_qr.pdf` in the `./output` directory.
 
-```bash
-python run_qrcodr.py generate --payload "https://example.com" --output-dir ./output --stem my_qr
-```
-
-Show version:
+To check the version:
 
 ```bash
 python -m qrcodr --version
 ```
 
-If no subcommand is provided, `qrcodr` opens the GUI.
+If you run `qrcodr` without a subcommand, it opens the GUI.
 
-## Run tests (pytest)
+---
+
+## Running tests
 
 With the virtual environment activated:
 
 ```bash
-pytest
+pytest                       # run all tests
+pytest -m smoke              # run only smoke tests (end-to-end CLI + GUI, QR decode verification)
+pytest -m "not smoke"        # run everything except smoke tests
 ```
 
-or explicitly via the venv interpreter:
+---
 
-```bash
-.venv/bin/python -m pytest
-```
+## Project layout
 
-(Windows: `.venv\Scripts\python.exe -m pytest`)
+| Path | Description |
+|------|-------------|
+| `src/qrcodr/app.py` | GUI application |
+| `src/qrcodr/cli.py` | CLI entrypoint and subcommands |
+| `src/qrcodr/core.py` | QR generation and export logic |
+| `tests/test_core.py` | Tests for core behavior |
+| `tests/test_cli.py` | Tests for command-line generation |
+| `.github/workflows/ci.yml` | CI test workflow |
+| `.github/workflows/release-binaries.yml` | Cross-platform binary build + release upload |
 
-Run only smoke tests (CLI + GUI end-to-end, QR decode verification):
+## CI/CD
 
-```bash
-pytest -m smoke
-```
-
-Run all non-smoke tests:
-
-```bash
-pytest -m "not smoke"
-```
-
-The desktop app opens directly, so users do not need to use the command line.
-The app window title shows the release version, and `--version` reports it in command-line mode.
-
-## CI/CD behavior
-
-- On every push and release, GitHub Actions runs the test suite.
-- On every published GitHub release, GitHub Actions builds one-file binaries for Windows/macOS/Linux, uploads the binaries directly (no ZIP), and uploads a `.sha256` file for each binary.
+On every push and release, GitHub Actions runs the test suite. On every published release, it builds standalone binaries for Windows, macOS, and Linux, uploads them to the release page, and generates a `.sha256` checksum file for each binary.
