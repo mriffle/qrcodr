@@ -107,6 +107,18 @@ or explicitly via the venv interpreter:
 
 (Windows: `.venv\Scripts\python.exe -m pytest`)
 
+Run only smoke tests (CLI + GUI end-to-end, QR decode verification):
+
+```bash
+pytest -m smoke
+```
+
+Run all non-smoke tests:
+
+```bash
+pytest -m "not smoke"
+```
+
 ## Use precompiled binaries
 
 1. Go to the project Releases page on GitHub.

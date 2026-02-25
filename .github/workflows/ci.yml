@@ -3,7 +3,7 @@ name: Tests
 on:
   push:
   release:
-    types: [published, prereleased]
+    types: [published, prereleased, released]
 
 jobs:
   test:
@@ -44,4 +44,40 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          "${{ steps.venv.outputs.python_path }}" -m pytest
+          "${{ steps.venv.outputs.python_path }}" -m pytest -m "not smoke"
+
+  smoke:
+    name: Smoke tests (CLI + GUI)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install GUI runtime dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb python3-tk
+
+      - name: Create venv
+        id: venv
+        shell: bash
+        run: |
+          python -m venv .venv
+          echo "python_path=.venv/bin/python" >> "$GITHUB_OUTPUT"
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          "${{ steps.venv.outputs.python_path }}" -m pip install --upgrade pip
+          "${{ steps.venv.outputs.python_path }}" -m pip install -e .[dev]
+
+      - name: Run smoke tests
+        shell: bash
+        run: |
+          xvfb-run -a "${{ steps.venv.outputs.python_path }}" -m pytest -m smoke
