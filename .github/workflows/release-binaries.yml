@@ -2,6 +2,11 @@ name: Release Binaries
 
 on:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release tag to attach binaries to (for example v1.2.9)"
+        required: true
+        type: string
   release:
     types: [published, prereleased, released]
 
@@ -12,6 +17,8 @@ jobs:
   build-and-upload:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release_tag }}
     strategy:
       fail-fast: false
       matrix:
@@ -29,7 +36,7 @@ jobs:
       - name: Inject release version
         shell: bash
         run: |
-          tag="${GITHUB_REF_NAME}"
+          tag="${RELEASE_TAG}"
           printf '%s\n' '"""Build-time version override injected by release workflow."""' > src/qrcodr/_build_version.py
           printf '%s\n' >> src/qrcodr/_build_version.py
           printf 'BUILD_VERSION: str | None = "%s"\n' "${tag}" >> src/qrcodr/_build_version.py
@@ -72,7 +79,7 @@ from pathlib import Path
 import zipfile
 
 runner_os = os.environ["RUNNER_OS"].lower()
-version = os.environ["GITHUB_REF_NAME"]
+version = os.environ["RELEASE_TAG"]
 executable = Path("dist/qrcodr.exe") if os.environ["RUNNER_OS"] == "Windows" else Path("dist/qrcodr")
 archive = Path(f"qrcodr-{version}-{runner_os}.zip")
 
@@ -87,4 +94,5 @@ PY
       - name: Upload to release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ env.RELEASE_TAG }}
           files: ${{ steps.package.outputs.archive }}
