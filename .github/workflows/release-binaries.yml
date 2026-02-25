@@ -73,22 +73,7 @@ jobs:
         id: package
         shell: bash
         run: |
-          archive="$("${{ steps.venv.outputs.python_path }}" - <<'PY'
-import os
-from pathlib import Path
-import zipfile
-
-runner_os = os.environ["RUNNER_OS"].lower()
-version = os.environ["RELEASE_TAG"]
-executable = Path("dist/qrcodr.exe") if os.environ["RUNNER_OS"] == "Windows" else Path("dist/qrcodr")
-archive = Path(f"qrcodr-{version}-{runner_os}.zip")
-
-with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as zf:
-    zf.write(executable, executable.name)
-
-print(archive)
-PY
-)"
+          archive="$("${{ steps.venv.outputs.python_path }}" -c "import os, zipfile; from pathlib import Path; runner_os = os.environ['RUNNER_OS'].lower(); version = os.environ['RELEASE_TAG']; executable = Path('dist/qrcodr.exe') if os.environ['RUNNER_OS'] == 'Windows' else Path('dist/qrcodr'); archive = Path(f'qrcodr-{version}-{runner_os}.zip'); zip_handle = zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED); zip_handle.write(executable, executable.name); zip_handle.close(); print(archive)")"
           echo "archive=${archive}" >> "$GITHUB_OUTPUT"
 
       - name: Upload to release
