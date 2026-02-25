@@ -59,8 +59,38 @@ On Windows, compare the hash printed by `Get-FileHash` to the value inside the `
 
 - **Desktop GUI** — a clean window with a live QR code preview and one-click export to PNG, SVG, and PDF
 - **Command-line mode** — generate QR codes without opening the GUI (great for scripting and automation)
+- **Docker CLI image** — run headless QR generation via `ghcr.io` without local Python setup
 - **Cross-platform** — precompiled binaries for Windows, macOS, and Linux
 - **No install required** — download a single file and run it
+
+---
+
+## Docker (CLI)
+
+For command-line automation, you can run qrcodr from the GHCR package image:
+
+- `ghcr.io/mriffle/qrcodr:latest` (latest published release)
+- `ghcr.io/mriffle/qrcodr:vX.Y.Z` (exact release tag)
+- `ghcr.io/mriffle/qrcodr:X.Y.Z`, `X.Y`, `X` (semantic aliases from releases)
+- `ghcr.io/mriffle/qrcodr:sha-<commit>` (immutable commit build)
+
+The image entrypoint is `qrcodr generate`, so you pass generate arguments directly:
+
+```bash
+docker run --rm -v "$PWD/output:/output" ghcr.io/mriffle/qrcodr:latest \
+  --payload "https://www.google.com/" \
+  --output-dir /output \
+  --stem google_qr
+```
+
+Use a specific release:
+
+```bash
+docker run --rm -v "$PWD/output:/output" ghcr.io/mriffle/qrcodr:v1.2.9 \
+  --payload "https://www.google.com/" \
+  --output-dir /output \
+  --stem google_qr
+```
 
 ---
 
@@ -142,9 +172,11 @@ pytest -m "not smoke"        # run everything except smoke tests
 | `src/qrcodr/core.py` | QR generation and export logic |
 | `tests/test_core.py` | Tests for core behavior |
 | `tests/test_cli.py` | Tests for command-line generation |
+| `Dockerfile` | CLI-focused runtime image definition |
 | `.github/workflows/ci.yml` | CI test workflow |
 | `.github/workflows/release-binaries.yml` | Cross-platform binary build + release upload |
+| `.github/workflows/docker-image.yml` | Build/push Docker package to GHCR |
 
 ## CI/CD
 
-On every push and release, GitHub Actions runs the test suite. On every published release, it builds standalone binaries for Windows, macOS, and Linux, uploads them to the release page, and generates a `.sha256` checksum file for each binary.
+On every push and release, GitHub Actions runs the test suite. On every published release, it builds standalone binaries for Windows, macOS, and Linux, uploads them to the release page, generates a `.sha256` checksum file for each binary, and publishes a Docker image to `ghcr.io`.

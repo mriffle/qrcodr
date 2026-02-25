@@ -1,0 +1,80 @@
+name: Docker Image
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compute image name
+        id: image
+        shell: bash
+        run: |
+          echo "name=ghcr.io/$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
+      - name: Compute version metadata
+        id: version
+        shell: bash
+        run: |
+          release_tag="${{ github.event.release.tag_name }}"
+          release_version="${release_tag#v}"
+          release_major=""
+          release_minor=""
+          app_version="${release_tag}"
+
+          if [[ "${release_version}" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            release_major="${BASH_REMATCH[1]}"
+            release_minor="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}"
+          fi
+
+          echo "release_tag=${release_tag}" >> "$GITHUB_OUTPUT"
+          echo "release_version=${release_version}" >> "$GITHUB_OUTPUT"
+          echo "release_major=${release_major}" >> "$GITHUB_OUTPUT"
+          echo "release_minor=${release_minor}" >> "$GITHUB_OUTPUT"
+          echo "app_version=${app_version}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.image.outputs.name }}
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=sha-
+            type=raw,value=${{ steps.version.outputs.release_tag }}
+            type=raw,value=${{ steps.version.outputs.release_version }}
+            type=raw,value=${{ steps.version.outputs.release_minor }},enable=${{ steps.version.outputs.release_minor != '' }}
+            type=raw,value=${{ steps.version.outputs.release_major }},enable=${{ steps.version.outputs.release_major != '' }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            QRCODR_BUILD_VERSION=${{ steps.version.outputs.app_version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

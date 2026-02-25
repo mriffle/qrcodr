@@ -6,7 +6,6 @@ import argparse
 from pathlib import Path
 from typing import Sequence
 
-from .app import main as run_gui
 from .core import DEFAULT_STEM, save_all_formats
 from .version import get_version
 
@@ -66,6 +65,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.command in (None, "gui"):
+        from .app import main as run_gui
+
         run_gui()
         return 0
 
