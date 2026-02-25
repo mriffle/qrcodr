@@ -3,7 +3,7 @@ name: Tests
 on:
   push:
   release:
-    types: [published, prereleased, released]
+    types: [published]
 
 jobs:
   test:
