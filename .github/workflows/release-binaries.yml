@@ -69,16 +69,25 @@ jobs:
             --name qrcodr \
             run_qrcodr.py
 
-      - name: Package artifact
+      - name: Prepare binary and checksum
         id: package
         shell: bash
         run: |
-          archive="$("${{ steps.venv.outputs.python_path }}" -c "import os, zipfile; from pathlib import Path; runner_os = os.environ['RUNNER_OS'].lower(); version = os.environ['RELEASE_TAG']; executable = Path('dist/qrcodr.exe') if os.environ['RUNNER_OS'] == 'Windows' else Path('dist/qrcodr'); archive = Path(f'qrcodr-{version}-{runner_os}.zip'); zip_handle = zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED); zip_handle.write(executable, executable.name); zip_handle.close(); print(archive)")"
-          echo "archive=${archive}" >> "$GITHUB_OUTPUT"
+          runner_os="$(echo "${RUNNER_OS}" | tr '[:upper:]' '[:lower:]')"
+          if [ "${RUNNER_OS}" = "Windows" ]; then
+            binary_name="qrcodr-${RELEASE_TAG}-${runner_os}.exe"
+          else
+            binary_name="qrcodr-${RELEASE_TAG}-${runner_os}"
+          fi
+          "${{ steps.venv.outputs.python_path }}" -c "import hashlib, os, shutil; from pathlib import Path; runner = os.environ['RUNNER_OS'].lower(); version = os.environ['RELEASE_TAG']; source = Path('dist/qrcodr.exe') if os.environ['RUNNER_OS'] == 'Windows' else Path('dist/qrcodr'); ext = '.exe' if os.environ['RUNNER_OS'] == 'Windows' else ''; binary = Path(f'qrcodr-{version}-{runner}{ext}'); shutil.copy2(source, binary); digest = hashlib.sha256(binary.read_bytes()).hexdigest(); checksum = Path(f'{binary.name}.sha256'); checksum.write_text(f'{digest}  {binary.name}\n', encoding='utf-8'); print(binary); print(checksum)"
+          echo "binary=${binary_name}" >> "$GITHUB_OUTPUT"
+          echo "checksum=${binary_name}.sha256" >> "$GITHUB_OUTPUT"
 
       - name: Upload to release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.RELEASE_TAG }}
-          files: ${{ steps.package.outputs.archive }}
+          files: |
+            ${{ steps.package.outputs.binary }}
+            ${{ steps.package.outputs.checksum }}
           overwrite_files: true

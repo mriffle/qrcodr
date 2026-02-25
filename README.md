@@ -122,12 +122,14 @@ pytest -m "not smoke"
 ## Use precompiled binaries
 
 1. Go to the project Releases page on GitHub.
-2. Download the archive for your platform:
-   - `qrcodr-vX.Y.Z-windows.zip`
-   - `qrcodr-vX.Y.Z-macos.zip`
-   - `qrcodr-vX.Y.Z-linux.zip`
-3. Extract the archive.
-4. Double-click the `qrcodr` executable (`qrcodr.exe` on Windows).
+2. Download your platform binary and checksum file:
+   - Windows: `qrcodr-vX.Y.Z-windows.exe` and `qrcodr-vX.Y.Z-windows.exe.sha256`
+   - macOS: `qrcodr-vX.Y.Z-macos` and `qrcodr-vX.Y.Z-macos.sha256`
+   - Linux: `qrcodr-vX.Y.Z-linux` and `qrcodr-vX.Y.Z-linux.sha256`
+3. (Recommended) verify checksum:
+   - Linux/macOS: `sha256sum -c qrcodr-vX.Y.Z-linux.sha256` (or the matching macOS file)
+   - Windows PowerShell: `Get-FileHash .\qrcodr-vX.Y.Z-windows.exe -Algorithm SHA256`
+4. Run the binary directly (double-click on Windows/macOS desktop environments, or execute in terminal on Linux/macOS if needed).
 
 The desktop app opens directly, so users do not need to use the command line.
 The app window title shows the release version, and `--version` reports it in command-line mode.
@@ -135,4 +137,4 @@ The app window title shows the release version, and `--version` reports it in co
 ## CI/CD behavior
 
 - On every push and release, GitHub Actions runs the test suite.
-- On every published or prereleased GitHub release, GitHub Actions builds one-file binaries for Windows/macOS/Linux and uploads them using the release tag in the filename.
+- On every published GitHub release, GitHub Actions builds one-file binaries for Windows/macOS/Linux, uploads the binaries directly (no ZIP), and uploads a `.sha256` file for each binary.
