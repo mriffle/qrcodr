@@ -59,7 +59,7 @@ jobs:
             --onefile \
             --windowed \
             --name qrcodr \
-            qrcodr.py
+            run_qrcodr.py
 
       - name: Package artifact
         id: package

@@ -66,7 +66,7 @@ qrcodr
 ```
 
 ```bash
-python qrcodr.py
+python run_qrcodr.py
 ```
 
 ### 4. Run from command line (no GUI)
@@ -80,7 +80,7 @@ python -m qrcodr generate --payload "https://example.com" --output-dir ./output 
 Equivalent via script wrapper:
 
 ```bash
-python qrcodr.py generate --payload "https://example.com" --output-dir ./output --stem my_qr
+python run_qrcodr.py generate --payload "https://example.com" --output-dir ./output --stem my_qr
 ```
 
 Show version:
